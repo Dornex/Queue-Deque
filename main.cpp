@@ -27,18 +27,47 @@ protected:
 	int dim_max;
 	int nr_elemente;
 public:
-	Coada(int dimensiune) {
-		prim = ultim = NULL;
-		dim_max = dimensiune;	
-		nr_elemente = 0;
-	}
+	Coada(Nod* p, Nod* u, int dimensiune);
 	void inserare_sfarsit(char val);
 	void stergere_inceput();
 	void afisare();
 	virtual bool is_deque() {
 		return 0;
 	}
+	friend ifstream& operator>>(ifstream& in, Coada& queue);
+	friend ostream& operator<<(ostream& os, Coada& queue);
 };
+
+Coada::Coada(Nod* p, Nod* u, int dimensiune) {
+	if (p != NULL && u != NULL) { prim = p; ultim = u; }
+	else prim = ultim = NULL;
+	dim_max = dimensiune;
+	nr_elemente = 0;
+}
+
+istream& operator>>(istream& in, Coada& queue) {
+	char x[5];
+	cout << "Citim pana la intalnirea stringului \"STOP\": ";
+	while (in >> x)
+	{
+		if (strcmp(x, "STOP") != 0)
+			queue.inserare_sfarsit(x[0]);
+		else break;
+	}
+	in.clear();
+	return in;
+}
+
+ostream& operator<<(ostream& os, Coada& queue) {
+	if (queue.prim == NULL) os << "Coada nula!\n";
+	Nod* tmp = queue.prim;
+	while (tmp != NULL) {
+		os << tmp->get_info() << ' ';
+		tmp = tmp->get_next();
+	}
+	os << '\n';
+	return os;
+}
 
 Nod*& Nod::get_next(){
 	return next;
@@ -63,8 +92,7 @@ void Coada::inserare_sfarsit(char val) {
 }
 
 void Coada::stergere_inceput() {
-	if (prim == NULL)
-		cout << "Coada nula!\n";
+	if (prim == NULL) cout << "Coada nula!\n";
 	else {
 		Nod* tmp = prim;
 		prim = prim->get_next();
@@ -73,27 +101,15 @@ void Coada::stergere_inceput() {
 	nr_elemente--;
 }
 
-void Coada::afisare() {
-	if (prim == NULL) cout << "Coada nula!\n";
-	Nod* tmp = this->prim;
-	while (tmp != NULL) {
-		cout << tmp->get_info() << ' ';
-		tmp = tmp->get_next();
-	}
-	cout << this->nr_elemente;
-	cout << '\n';
-}
-
 class Deque :public Coada {
 
 public:
-	Deque(int dimensiune) :Coada(dimensiune) {};
+	Deque(Nod* p, Nod* u, int dimensiune) :Coada(prim, ultim, dimensiune) {};
 	void inserare_inceput(char val);
 	void stergere_sfarsit();
 	bool is_deque() {
 		return 1;
 	}
-
 };
 
 void Deque::stergere_sfarsit() {
@@ -115,7 +131,6 @@ void Deque::inserare_inceput(char val)
 {
 	if (nr_elemente + 1 > dim_max) { cout << "Deque overflow!\n"; return; }
 	else nr_elemente++;
-
 	Nod* tmp = new Nod(val);
 	if (prim == NULL && ultim == NULL) {
 		prim = ultim = tmp;
@@ -126,28 +141,15 @@ void Deque::inserare_inceput(char val)
 	}
 }
 
-
 int main()
 {
-	Coada q(5);
-	q.inserare_sfarsit('a');
-	q.inserare_sfarsit('b');
-	q.inserare_sfarsit('C');
-	q.inserare_sfarsit('D');
-	q.inserare_sfarsit('E');
-	q.inserare_sfarsit('l');
-	q.afisare();
+	Coada q(NULL, NULL, 5);
+	cin >> q;
+	cout << q;
 
-	Deque d(7);
-	d.inserare_inceput('d');
-	d.inserare_inceput('2');
-	d.inserare_inceput('A');
-	d.inserare_sfarsit('c');
-	d.inserare_inceput('b');
-	d.inserare_sfarsit('l');
-	d.stergere_inceput();
-	d.stergere_sfarsit();
-	d.afisare();
+	Deque d(NULL, NULL, 7);
+	cin >> d;
+	cout << d;
 
 	if (d.is_deque() == 1) cout << "Este deque!\n";
 	else cout << "Nu este deque!\n";
@@ -156,4 +158,3 @@ int main()
 	else cout << "Nu este deque!\n";
 	return 0;
 }
-
