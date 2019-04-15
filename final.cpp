@@ -28,6 +28,8 @@ protected:
 	int nr_elemente;
 public:
 	Coada(Nod* p, Nod* u, int dimensiune);
+	Coada(Coada& C);
+	Coada& operator=(Coada& C);
 	void inserare_sfarsit(char val);
 	void stergere_inceput();
 	void afisare();
@@ -36,7 +38,66 @@ public:
 	}
 	friend ifstream& operator>>(ifstream& in, Coada& queue);
 	friend ostream& operator<<(ostream& os, Coada& queue);
+	~Coada();
 };
+
+Coada::~Coada() {
+	Nod* tmp = this->prim;
+	while (tmp != NULL) {
+		Nod* aux = tmp->get_next();
+		delete tmp;
+		tmp = aux;
+	}
+	prim = NULL;
+	ultim = NULL;
+}
+
+Coada& Coada::operator=(Coada& C) {
+	if (this != &C) {
+		Nod* tmp = this->prim;
+		while (tmp != NULL) {
+			Nod* aux = tmp->get_next();
+			delete tmp;
+			tmp = aux;
+		}
+
+		Nod* aux = C.prim;
+		dim_max = C.dim_max;
+
+		if (aux != NULL) {
+			Nod* tmp = new Nod(aux->get_info());
+			prim = ultim = tmp;
+			aux = aux->get_next();
+
+			while (aux != NULL) {
+				Nod* tmp = new Nod(aux->get_info());
+				ultim->get_next() = tmp;
+				aux = aux->get_next();
+				ultim = ultim->get_next();
+			}
+		}
+	}
+	return *this;
+}
+
+Coada::Coada(Coada& C) {
+	Nod* aux = C.prim;
+	dim_max = C.dim_max;
+	nr_elemente = C.nr_elemente;
+
+	if (aux != NULL) {
+		Nod* tmp = new Nod(aux->get_info());
+		prim = ultim = tmp;
+		aux = aux->get_next();
+
+		while (aux != NULL) {
+			Nod* tmp = new Nod(aux->get_info());
+			ultim->get_next() = tmp;
+			aux = aux->get_next();
+			ultim = ultim->get_next();
+		}
+	}
+}
 
 Coada::Coada(Nod* p, Nod* u, int dimensiune) {
 	if (p != NULL && u != NULL) { prim = p; ultim = u; }
@@ -143,18 +204,31 @@ void Deque::inserare_inceput(char val)
 
 int main()
 {
-	Coada q(NULL, NULL, 5);
+	Coada q(NULL, NULL, 5), cp1(NULL, NULL, 5);
 	cin >> q;
 	cout << q;
 
-	Deque d(NULL, NULL, 7);
+	cp1 = q;
+	cout << cp1;
+
+	Coada e(q);
+	cout << e;
+
+	Deque d(NULL, NULL, 7), dp1(NULL, NULL, 7);
 	cin >> d;
 	cout << d;
+
+	dp1 = d;
+	cout << dp1;
+
+	Deque l(d);
+	cout << l;
 
 	if (d.is_deque() == 1) cout << "Este deque!\n";
 	else cout << "Nu este deque!\n";
 
 	if (q.is_deque() == 1) cout << "Este deque!\n";
-	else cout << "Nu este deque!\n";
+	else cout << "Nu este deque!\n"; 
+
 	return 0;
 }
